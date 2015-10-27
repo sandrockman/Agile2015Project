@@ -8,6 +8,7 @@ public class invisiblePointer : MonoBehaviour {
 	void Start () {
 		//parentRend = parent.GetComponent<Renderer> ();
 		currentRend = GetComponent<Renderer> ();
+		parentRend = transform.parent.GetComponent<Renderer> ();
 	}
 	
 	// Update is called once per frame

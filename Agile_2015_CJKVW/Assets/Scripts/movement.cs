@@ -10,22 +10,28 @@ public class movement : MonoBehaviour {
 	public ParticleSystem teleportEffect;
 	Renderer render;
 
-	float horzMove = 0;
-	float vertMove = 0;
+	[Tooltip("horizontal movement amount by axis")]
+	public float horzMove = 0;
+	[Tooltip("vertical movement amount by axis")]
+	public float vertMove = 0;
 	float startMoveTime;
 	float moveLength;
+	float heightToCenter;
 	bool currentlyMoving;
 
 	Vector3 startLocation;
 	Vector3 targetLocation;
 
+	//used to check if the player can phase through out-of-bounds areas
 	bool canPhase = false;
+	//checks if they are in the start of a move sequence for teleport effect.
 	bool startMove = false;
 	float whereToFace;
 
 	// Use this for initialization
 	void Start () {
 		render = GetComponent<Renderer> ();
+		heightToCenter = GetComponent<CapsuleCollider> ().height / 2;
 		currentlyMoving = false;
 		
 		targetLocation = startLocation = transform.position;
@@ -78,7 +84,7 @@ public class movement : MonoBehaviour {
 			
 			//should either move a collider to or create one at this new location
 			//to find if the move was legal
-			
+			CanPlayerPhase();
 			//move target is set. 
 
 			//set start time
@@ -100,12 +106,17 @@ public class movement : MonoBehaviour {
 			startMove = false;
 			ParticleSystem newBamf = (ParticleSystem) Instantiate(teleportEffect, 
 			                                                      transform.position, 
-			                                                      transform.rotation);
+			                                                      Quaternion.Euler(0,0,0));
 			render.enabled = false;	
 			//Quaternion newRotation = transform.rotation;
 			//newRotation.y = whereToFace;
 			//transform.rotation = newRotation;
-			Debug.Log ("Set startMove to False");
+
+			//Debug.Log ("whereToFace = " + whereToFace +
+			//		   ", newRotation.y = " + newRotation.y +
+			  //         "\ntransform.rotation.y = " + transform.rotation.y);
+			//Vector3 targetLocation
+			transform.rotation = Quaternion.LookRotation(targetLocation);
 		}
 		
 		//lerp toward targetLocation
@@ -119,7 +130,7 @@ public class movement : MonoBehaviour {
 		if (transform.position == targetLocation) {
 			ParticleSystem newBamf = (ParticleSystem)Instantiate(teleportEffect,
 			                                                     transform.position,
-			                                                     transform.rotation);
+			                                                     Quaternion.Euler(0,0,0));
 			render.enabled = true;
 		}
 	}
@@ -132,9 +143,10 @@ public class movement : MonoBehaviour {
 		if (Mathf.Abs (horzMove) < pDistCheck) {
 			if (vertMove > pDistCheck)
 				whereToFace = 0;//north
-			if (vertMove < -pDistCheck)
+			else if (vertMove < -pDistCheck)
 				whereToFace = 180;//south
 		} else {
+			Debug.Log("Set Facing anything other than straight north/south");
 			if(horzMove > pDistCheck){
 				if(vertMove > pDistCheck){
 					whereToFace = 45;//north east
@@ -154,6 +166,25 @@ public class movement : MonoBehaviour {
 				}
 				else{
 					whereToFace = 270;//west
+				}
+			}
+		}
+		Debug.Log ("Where to face angle is - " + whereToFace);
+	}
+	//Checks if player can phase through walls/obtacles to location
+	//before character starts moving.
+	void CanPlayerPhase()
+	{
+		float checkRadius = GetComponent<CapsuleCollider> ().radius;
+		Collider[] hitColliders = Physics.OverlapSphere (targetLocation, checkRadius);
+		canPhase = true;
+		if(hitColliders.Length > 0)
+		{
+			foreach(Collider hit in hitColliders)
+			{
+				if(hit.tag == "OutOfBounds" || hit.tag == "Enemy")
+				{
+					canPhase = false;
 				}
 			}
 		}
