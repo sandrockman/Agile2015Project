@@ -17,13 +17,14 @@ public class movement : MonoBehaviour {
 	float startMoveTime;
 	float moveLength;
 	float heightToCenter;
-	bool currentlyMoving;
+    [Tooltip("shows if the player can phase through walls.")]
+	public bool currentlyMoving;
 
 	Vector3 startLocation;
 	Vector3 targetLocation;
 
-	//used to check if the player can phase through out-of-bounds areas
-	bool canPhase = false;
+	[Tooltip("used to check if the player can phase through out-of-bounds areas")]
+	public bool canPhase = false;
 	//checks if they are in the start of a move sequence for teleport effect.
 	bool startMove = false;
 	float whereToFace;
@@ -43,10 +44,6 @@ public class movement : MonoBehaviour {
 		if (currentlyMoving) 
 		{
 			TeleLerp ();
-			if(transform.position == targetLocation)
-			{
-				currentlyMoving = false;
-			}
 		} 
 		else // !currentlyMoving
 		{
@@ -60,6 +57,10 @@ public class movement : MonoBehaviour {
 		vertMove = Input.GetAxis ("Vertical");
 	}
 
+    //uses inputs to tell if the player moves in a given direction
+    //movement is in a set amount
+    //@pre startLocation sets point
+    //@pre targetLocation sets and modifies depending on inputs
 	void SetTeleLerpPoint()
 	{
 		if(horzMove != 0 || vertMove != 0)
@@ -78,8 +79,6 @@ public class movement : MonoBehaviour {
 				targetLocation.z += pMoveDist;
 			if(vertMove < -pDistCheck)
 				targetLocation.z -= pMoveDist;
-			//find direction to face
-			FindFacing();
 			//find plane or terrain y position so move to legal vertical location
 			
 			//should either move a collider to or create one at this new location
@@ -107,22 +106,20 @@ public class movement : MonoBehaviour {
 			ParticleSystem newBamf = (ParticleSystem) Instantiate(teleportEffect, 
 			                                                      transform.position, 
 			                                                      Quaternion.Euler(0,0,0));
-			render.enabled = false;	
-			//Quaternion newRotation = transform.rotation;
-			//newRotation.y = whereToFace;
-			//transform.rotation = newRotation;
-
-			//Debug.Log ("whereToFace = " + whereToFace +
-			//		   ", newRotation.y = " + newRotation.y +
-			  //         "\ntransform.rotation.y = " + transform.rotation.y);
-			//Vector3 targetLocation
-			transform.rotation = Quaternion.LookRotation(targetLocation);
+            //turn character invisible
+			render.enabled = false;
+            //find direction to face
+            FindFacing();
 		}
 		
 		//lerp toward targetLocation
 		float distCovered = (Time.time - startMoveTime) * pSpeed;
 		float fracJourney = distCovered / moveLength;
-		transform.position = Vector3.Lerp(startLocation, targetLocation, fracJourney);
+		Vector3 checkedLerp = Vector3.Lerp(startLocation, targetLocation, fracJourney);
+        if (CheckLerpPoint(checkedLerp))
+            transform.position = Vector3.Lerp(startLocation, targetLocation, fracJourney);
+        else
+            targetLocation = transform.position;
 
 		//if character ends movement...
 		//enable view of player AND 
@@ -132,6 +129,7 @@ public class movement : MonoBehaviour {
 			                                                     transform.position,
 			                                                     Quaternion.Euler(0,0,0));
 			render.enabled = true;
+            currentlyMoving = false;
 		}
 	}
 
@@ -140,39 +138,13 @@ public class movement : MonoBehaviour {
 	//@pre only used after finding new move inputs.
 	void FindFacing()
 	{
-		if (Mathf.Abs (horzMove) < pDistCheck) {
-			if (vertMove > pDistCheck)
-				whereToFace = 0;//north
-			else if (vertMove < -pDistCheck)
-				whereToFace = 180;//south
-		} else {
-			Debug.Log("Set Facing anything other than straight north/south");
-			if(horzMove > pDistCheck){
-				if(vertMove > pDistCheck){
-					whereToFace = 45;//north east
-				}
-				else if(vertMove < -pDistCheck){
-					whereToFace = 135;//south east
-				}
-				else{
-					whereToFace = 90;//east
-				}
-			} else if(horzMove > pDistCheck){
-				if(vertMove > pDistCheck){
-					whereToFace = 315;//north west
-				}
-				else if(vertMove < -pDistCheck){
-					whereToFace = 225;//south west
-				}
-				else{
-					whereToFace = 270;//west
-				}
-			}
-		}
-		Debug.Log ("Where to face angle is - " + whereToFace);
-	}
+        Quaternion lookRotation = Quaternion.LookRotation((targetLocation - transform.position).normalized);
+        transform.rotation = lookRotation;
+    }
+
 	//Checks if player can phase through walls/obtacles to location
 	//before character starts moving.
+    //changes bool variable canPhase
 	void CanPlayerPhase()
 	{
 		float checkRadius = GetComponent<CapsuleCollider> ().radius;
@@ -189,4 +161,34 @@ public class movement : MonoBehaviour {
 			}
 		}
 	}
+
+    //checks if the next Lerp in a movement has a wall or an enemy
+    //@pre canPhase
+    //@param checkLocation position to be lerped to
+    //might change targetLocation to current transform.
+    bool CheckLerpPoint(Vector3 checkLocation)
+    {
+        float checkRadius = GetComponent<CapsuleCollider>().radius;
+        Collider[] hitColliders = Physics.OverlapSphere(checkLocation, checkRadius);
+        foreach(Collider hit in hitColliders)
+        {
+            if (hit.tag == "Enemy")
+            {
+                Debug.Log("Attack!");
+                return false;
+            }
+        }
+        if (!canPhase)
+        {
+            foreach(Collider hit in hitColliders)
+            {
+                if(hit.tag == "OutOfBounds")
+                {
+                    Debug.Log("Hit a wall...");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }
