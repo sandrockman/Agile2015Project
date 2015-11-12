@@ -45,7 +45,7 @@ public class movement : MonoBehaviour {
 		{
 			TeleLerp ();
 		} 
-		else // !currentlyMoving
+		else if(horzMove != 0 || vertMove != 0) // !currentlyMoving
 		{
 			SetTeleLerpPoint();
 		}
