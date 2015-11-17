@@ -172,7 +172,7 @@ public class movement : MonoBehaviour {
         Collider[] hitColliders = Physics.OverlapSphere(checkLocation, checkRadius);
         foreach(Collider hit in hitColliders)
         {
-            if (hit.tag == "Enemy")
+            if (hit.tag == "Enemy" || hit.tag == "Barrier")
             {
                 Debug.Log("Attack!");
                 return false;
