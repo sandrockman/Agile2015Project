@@ -6,9 +6,11 @@ public class AttackScript : MonoBehaviour {
 	[Tooltip("Amount of damage for a light/base attack")]
 	float baseAttackDmg;
 
-	Vector3 startPos;
-	Vector3 endPos;
-	GameObject weapon;
+	Quaternion startPos;
+	Quaternion endPos;
+	public GameObject weapon;
+	public GameObject weaponArc;
+
 	/*
 	[Tooltip("Amount of damage for a medium attack")]
 	float mediumAttackDmg;
@@ -18,7 +20,9 @@ public class AttackScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+		startPos = weapon.transform.rotation;
+		endPos = weaponArc.transform.rotation;
+		//weapon.activeSelf = false;
 	}
 	
 	// Update is called once per frame
@@ -30,4 +34,6 @@ public class AttackScript : MonoBehaviour {
 	{
 
 	}
+
+
 }
