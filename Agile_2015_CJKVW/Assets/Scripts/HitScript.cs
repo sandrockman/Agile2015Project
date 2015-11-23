@@ -7,7 +7,7 @@ public class HitScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+        variableScript = GetComponent<BaseVariableScript>();
 	}
 	
 	// Update is called once per frame
@@ -15,8 +15,18 @@ public class HitScript : MonoBehaviour {
 	
 	}
 
-	void TakeDamage(float dmg)
-	{
+    void OnTriggerEnter(Collider other)
+    {
+        if(other.tag == "Weapon")
+        {
+            float dmg = other.GetComponent<BaseVariableScript>().atkDmg;
+            TakeDamage(dmg);
+            Debug.Log("hit.");
+        }
+    }
 
+    void TakeDamage(float dmg)
+	{
+        variableScript.ModHealth(-dmg);
 	}
 }

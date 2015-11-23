@@ -29,6 +29,8 @@ public class movement : MonoBehaviour {
 	bool startMove = false;
 	float whereToFace;
 
+    AttackScript attackScript;
+
 	// Use this for initialization
 	void Start () {
 		render = GetComponent<Renderer> ();
@@ -36,6 +38,7 @@ public class movement : MonoBehaviour {
 		currentlyMoving = false;
 		
 		targetLocation = startLocation = transform.position;
+        attackScript = GetComponent<AttackScript>();
 	}
 	
 	// Update is called once per frame
@@ -45,7 +48,7 @@ public class movement : MonoBehaviour {
 		{
 			TeleLerp ();
 		} 
-		else if(horzMove != 0 || vertMove != 0) // !currentlyMoving
+		else if((horzMove != 0 || vertMove != 0) && attackScript.isAttacking == false) // !currentlyMoving
 		{
 			SetTeleLerpPoint();
 		}
@@ -174,7 +177,11 @@ public class movement : MonoBehaviour {
         {
             if (hit.tag == "Enemy" || hit.tag == "Barrier")
             {
-                Debug.Log("Attack!");
+                Debug.Log("Stop");
+                if(hit.tag == "Enemy")
+                {
+                    attackScript.CallAttack();
+                }
                 return false;
             }
         }
