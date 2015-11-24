@@ -119,11 +119,21 @@ public class movement : MonoBehaviour {
 		float distCovered = (Time.time - startMoveTime) * pSpeed;
 		float fracJourney = distCovered / moveLength;
 		Vector3 checkedLerp = Vector3.Lerp(startLocation, targetLocation, fracJourney);
-        if (CheckLerpPoint(checkedLerp))
-            transform.position = Vector3.Lerp(startLocation, targetLocation, fracJourney);
+        if (CheckLerpPoint (checkedLerp)) 
+		{
+			transform.position = Vector3.Lerp (startLocation, targetLocation, fracJourney);
+		}
         else
-            targetLocation = transform.position;
-
+		{
+			if(InLegalLocation(transform.position))
+			{
+            	targetLocation = transform.position;
+			}
+			else
+			{
+				SnapToLegalSimple();
+			}
+		}
 		//if character ends movement...
 		//enable view of player AND 
 		//start particle effect of end teleport at point
@@ -157,7 +167,7 @@ public class movement : MonoBehaviour {
 		{
 			foreach(Collider hit in hitColliders)
 			{
-				if(hit.tag == "OutOfBounds" || hit.tag == "Enemy")
+				if(hit.tag == "OutOfBounds" || hit.tag == "Enemy" || hit.tag == "Barrier")
 				{
 					canPhase = false;
 				}
@@ -178,7 +188,8 @@ public class movement : MonoBehaviour {
             if (hit.tag == "Enemy" || hit.tag == "Barrier")
             {
                 Debug.Log("Stop");
-                if(hit.tag == "Enemy")
+				//check if going to spawn in a legal location
+				if(InLegalLocation(transform.position) && hit.tag == "Enemy")
                 {
                     attackScript.CallAttack();
                 }
@@ -198,4 +209,33 @@ public class movement : MonoBehaviour {
         }
         return true;
     }
+
+	bool InLegalLocation(Vector3 locPosition)
+	{
+		float checkRadius = GetComponent<CapsuleCollider>().radius;
+		Collider[] hitColliders = Physics.OverlapSphere (locPosition, checkRadius);
+		foreach (Collider hit in hitColliders) 
+		{
+			if(hit.tag == "OutOfBounds" || hit.tag == "Enemy" || hit.tag == "Barrier")
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	void SnapToLegalSimple()
+	{
+		Vector3 startPos = transform.position;
+		Vector3 endPos = startLocation;
+		Vector3 newPos;
+		float adjustIncrement = 0.05f;
+		float adjust = adjustIncrement;
+		do {
+			newPos = Vector3.Lerp (startPos, endPos, adjust);
+			adjust += adjustIncrement;
+		} while(!InLegalLocation(newPos));
+		transform.position = newPos;
+		targetLocation = transform.position;
+	}
 }
