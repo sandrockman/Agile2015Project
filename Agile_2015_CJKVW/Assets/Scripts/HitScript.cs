@@ -19,7 +19,7 @@ public class HitScript : MonoBehaviour {
     {
         if(other.tag == "Weapon")
         {
-            float dmg = other.GetComponent<BaseVariableScript>().atkDmg;
+			float dmg = other.GetComponentInParent<BaseVariableScript>().atkDmg;
             TakeDamage(dmg);
             Debug.Log("hit.");
         }
