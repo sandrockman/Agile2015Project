@@ -59,9 +59,13 @@ public class CameraFollow : MonoBehaviour {
 		if (vampires.Length > 0) {
 			foreach(GameObject kindred in vampires)
 			{
-				//kindred.GetComponent<Renderer>().
+				Renderer ghoul = kindred.GetComponent<Renderer>();
+				ghoul.material.color.a = 1;
 			}
 		}
+
+		float dist = Mathf.Sqrt (cameraHeight * cameraHeight + distanceFromPlayer * distanceFromPlayer);
+		vampires = Physics.RayCastAll (transform.position, cameraTarget.position, dist);
 	}
 }
 
