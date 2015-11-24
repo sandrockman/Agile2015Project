@@ -12,6 +12,7 @@ public class CameraFollow : MonoBehaviour {
 	Vector3 endLoc;
 	public float smooth = 5.0f;
 
+	RayCastHit[] vampires;
 
 	// Use this for initialization
 	void Start () {
@@ -24,7 +25,7 @@ public class CameraFollow : MonoBehaviour {
 	void Update () {
 		//UpdateLook ();
 		Follow ();	
-
+		Obfuscate ();
 	}
 
 	void Follow(){
@@ -52,4 +53,19 @@ public class CameraFollow : MonoBehaviour {
 			(cameraTarget.position.y + cameraHeight),
 			(cameraTarget.position.z - distanceFromPlayer));
 	}
+
+	void Obfuscate()
+	{
+		if (vampires.Length > 0) {
+			foreach(GameObject kindred in vampires)
+			{
+				//kindred.GetComponent<Renderer>().
+			}
+		}
+	}
 }
+
+
+
+
+
