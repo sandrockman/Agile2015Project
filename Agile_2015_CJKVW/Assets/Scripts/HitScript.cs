@@ -28,5 +28,8 @@ public class HitScript : MonoBehaviour {
     void TakeDamage(float dmg)
 	{
         variableScript.ModHealth(-dmg);
+		if (variableScript.GetHealth () <= 0) {
+			Destroy(this.gameObject);
+		}
 	}
 }

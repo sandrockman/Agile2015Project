@@ -44,4 +44,9 @@ public class BaseVariableScript : MonoBehaviour {
 	{
 		atkSpeed = mod;
 	}
+
+	public float GetHealth()
+	{
+		return health;
+	}
 }

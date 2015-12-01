@@ -3,11 +3,14 @@ using System.Collections;
 
 public class movement : MonoBehaviour {
 
+	//by Victor. Needs way to get out of being pinned between a single enemy and a wall.
+	//			 Any overlap with an enemy will break the game. Need to find a fix.
+
 	public float pMoveDist = 2.5f;
 	public float pSpeed = 6f;
 	public float pDistCheck = 0.02f;
 
-	public ParticleSystem teleportEffect;
+	public GameObject teleportEffect;
 	Renderer render;
 
 	[Tooltip("horizontal movement amount by axis")]
@@ -109,7 +112,7 @@ public class movement : MonoBehaviour {
 			GameObject newBamf = //(ParticleSystem) 
                                  Instantiate(teleportEffect, 
 			                     transform.position, 
-			                     Quaternion.Euler(0,0,0)) as GameObject;
+			                     Quaternion.Euler(45f,45f,45f)) as GameObject;
             //turn character invisible
 			render.enabled = false;
             //find direction to face
@@ -142,7 +145,7 @@ public class movement : MonoBehaviour {
 			GameObject newBamf = //(ParticleSystem)
                                  Instantiate(teleportEffect,
 			                     transform.position,
-			                     Quaternion.Euler(0,0,0)) as GameObject;
+			                     Quaternion.Euler(45f,45f,45f)) as GameObject;
 			render.enabled = true;
             currentlyMoving = false;
 		}
