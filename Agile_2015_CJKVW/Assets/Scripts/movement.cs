@@ -27,7 +27,7 @@ public class movement : MonoBehaviour {
 	public bool canPhase = false;
 	//checks if they are in the start of a move sequence for teleport effect.
 	bool startMove = false;
-	float whereToFace;
+	//float whereToFace;
 
     AttackScript attackScript;
 
@@ -106,9 +106,10 @@ public class movement : MonoBehaviour {
 		//start particle effect of begin teleport at point
 		if (startMove) {
 			startMove = false;
-			ParticleSystem newBamf = (ParticleSystem) Instantiate(teleportEffect, 
-			                                                      transform.position, 
-			                                                      Quaternion.Euler(0,0,0));
+			GameObject newBamf = //(ParticleSystem) 
+                                 Instantiate(teleportEffect, 
+			                     transform.position, 
+			                     Quaternion.Euler(0,0,0)) as GameObject;
             //turn character invisible
 			render.enabled = false;
             //find direction to face
@@ -138,9 +139,10 @@ public class movement : MonoBehaviour {
 		//enable view of player AND 
 		//start particle effect of end teleport at point
 		if (transform.position == targetLocation) {
-			ParticleSystem newBamf = (ParticleSystem)Instantiate(teleportEffect,
-			                                                     transform.position,
-			                                                     Quaternion.Euler(0,0,0));
+			GameObject newBamf = //(ParticleSystem)
+                                 Instantiate(teleportEffect,
+			                     transform.position,
+			                     Quaternion.Euler(0,0,0)) as GameObject;
 			render.enabled = true;
             currentlyMoving = false;
 		}
